@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Minibia Alertas JM",
+  "version": "2.0.0",
+  "description": "Alertas con pitido hasta que las cierres. Se actualiza sola desde GitHub (JM-SRI/minibia-alertas).",
+  "permissions": ["storage"],
+  "host_permissions": ["https://api.github.com/*", "https://raw.githubusercontent.com/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    { "matches": ["https://minibia.com/play*", "https://www.minibia.com/play*"], "js": ["cargador.js"], "run_at": "document_idle" }
+  ],
+  "action": { "default_popup": "popup.html", "default_title": "Minibia Alertas JM" }
+}
