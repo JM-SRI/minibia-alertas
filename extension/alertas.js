@@ -1,8 +1,8 @@
-// Minibia Alertas JM v2.0.0 (11-11-2026) — la extensión la baja sola de GitHub (JM-SRI/minibia-alertas) y la mete en la página
+// Minibia Alertas JM v2.0.1 (13-11-2026) — la extensión la baja sola de GitHub (JM-SRI/minibia-alertas) y la mete en la página
 // Solo MIRA lo que se ve en pantalla y PITA. No toca el juego, no pulsa nada, no contesta a nadie.
 // Pita cada 2 s hasta que JM cierra el cartel rojo (abajo a la izquierda).
 (() => {
-  const VER = '2.0.0';
+  const VER = '2.0.1';
   if (window.__jmAlertas && window.__jmAlertas.stop) { try { window.__jmAlertas.stop(); } catch (e) {} }   // versión vieja fuera
   const IV = [], OBS = [];
   const every = (f, ms) => { const i = setInterval(f, ms); IV.push(i); return i; };
@@ -29,7 +29,7 @@
   const AB = /anti-?bot|verification/i;
   const AB_T = /\b(60|30)\s*(s\b|sec|seg)|\b1\s*min/i;
   const SPELL = /^(ex[a-z]*|ut[a-z]*|ad[a-z]*|exevo.*|exura.*|exori.*|utani.*|utamo.*|utana.*|adori.*|adura.*|aaaah\.*|.*\bhur\b.*|.*\bvita\b.*|.*\bgran\b.*)$/i;
-  const PRES = /smell you|say something|speak|answer|you live|hear me|for prey|are you there|you there|still alive|are you alive/i;
+  const PRES = /smell you|say something|speak|answer|you live|hear me|for prey|are you there|you there|still alive|are you alive|anybody there|anyone there|wake up/i;
 
   /* ---------- SONIDO + CARTEL ---------- */
   const FREQ = { antibot: 1200, god: 900, nombre: 1000, suelo: 700, prueba: 1000 };
@@ -104,6 +104,12 @@
     if (ME_RE.test(body) || PRES.test(body)) fire('nombre', t, 20000);
   }
 
+  function isLabel(t) {
+    if (!t || t.length > 30) return false;
+    if (inList(t, ME)) return true;
+    const names = [...document.querySelectorAll('#battle-window .battle-window-target-title')].map(e => e.textContent.trim().toLowerCase());
+    return names.includes(t.toLowerCase()) || (STAFF.test(t) && !/says|:/.test(t));
+  }
   const mo = new MutationObserver(ms => {
     for (const m of ms) {
       if (m.type === 'characterData') { check(m.target.textContent); continue; }
@@ -113,7 +119,9 @@
         if (el.closest && el.closest('#mv2-panel')) continue;
         // si es la etiqueta de nombre de un bicho/jugador (sin texto dicho), no cuenta
         const t = String(n.textContent || '').trim();
-        if (el.closest && el.closest('#canvas-id') && !/[:!?.]/.test(t) && t.split(/\s+/).length <= 4) {
+        // etiqueta de nombre encima de un bicho/jugador: solo si el texto ES un nombre (el suyo o uno de Battle).
+        // 13-11: "Hey Matadorr" / "I smell you" salían como bocadillo sin ':' y se tomaban por etiqueta → no avisaba
+        if (el.closest && el.closest('#canvas-id') && isLabel(t)) {
           if (cfg.god && STAFF.test(t)) fire('god', 'en pantalla: ' + t, 300000);
           continue;
         }
